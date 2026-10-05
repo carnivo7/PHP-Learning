@@ -23,10 +23,10 @@ $asset = $basePath . '/public/assets';
 </head>
 
 <body>
-    <div class="shell">
+    <div class="shell shell--board">
         <header class="app-top rise">
             <div class="app-top__brand">
-                <a class="brand brand--compact" href="/home.html">
+                <a class="brand brand--compact" href="<?= View::e($basePath) ?>/">
                     <span class="brand__mark" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M5 8h14v2H5V8Zm0 5h10v2H5v-2Z" fill="#e8f3ef" />
@@ -51,90 +51,15 @@ $asset = $basePath . '/public/assets';
             <p>Reminders pause from 10:00 PM – 7:00 AM. Alarms still show in your list.</p>
         </aside>
 
-        <section class="section rise rise-delay-1" aria-labelledby="compose-title">
-            <div class="composer">
-                <h2 class="composer__title" id="compose-title">Add a what-to-do</h2>
-                <p class="panel__sub">Set a time, pick priority, and choose how you want to be nudged.</p>
+        <input class="view-switch sr-only" type="checkbox" id="empty-demo" />
 
-                <form class="form" action="/home.html" method="get">
-                    <div class="field">
-                        <label for="task-title">Task</label>
-                        <input
-                            id="task-title"
-                            name="title"
-                            type="text"
-                            placeholder="Call the clinic about Thursday’s appointment"
-                            required />
-                    </div>
-                    <div class="field">
-                        <label for="task-note">Note (optional)</label>
-                        <textarea
-                            id="task-note"
-                            name="note"
-                            rows="2"
-                            placeholder="Ask about fasting instructions before the bloodwork."></textarea>
-                    </div>
-                    <div class="form__row">
-                        <div class="field">
-                            <label for="alarm-time">Alarm / time</label>
-                            <input id="alarm-time" name="alarm" type="time" value="14:30" required />
-                        </div>
-                        <div class="field">
-                            <span id="priority-label">Priority</span>
-                            <div class="priority" role="radiogroup" aria-labelledby="priority-label">
-                                <label>
-                                    <input type="radio" name="priority" value="high" />
-                                    <span data-level="high">High</span>
-                                </label>
-                                <label>
-                                    <input type="radio" name="priority" value="medium" checked />
-                                    <span data-level="medium">Medium</span>
-                                </label>
-                                <label>
-                                    <input type="radio" name="priority" value="low" />
-                                    <span data-level="low">Low</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <span id="channels-label">Reminder channels</span>
-                        <div class="channels" role="group" aria-labelledby="channels-label">
-                            <label class="channel channel--email">
-                                <input type="checkbox" name="channel" value="email" checked />
-                                <span>Email</span>
-                            </label>
-                            <label class="channel channel--whatsapp">
-                                <input type="checkbox" name="channel" value="whatsapp" />
-                                <span>WhatsApp</span>
-                            </label>
-                            <label class="channel channel--sms">
-                                <input type="checkbox" name="channel" value="sms" />
-                                <span>Message (SMS)</span>
-                            </label>
-                        </div>
-                        <p class="field__hint">Choose one or more. Channels use the contact details on your account.</p>
-                    </div>
-                    <div class="form__actions">
-                        <button class="btn btn--primary" type="submit">Save to today</button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <section class="section rise rise-delay-2" aria-labelledby="list-title">
-            <div class="section__head">
-                <h2 class="section__title" id="list-title">Today’s list</h2>
-                <p class="section__count">Pending first, then completed</p>
-            </div>
-
-            <p class="demo-toggle">
-                <label for="empty-demo">Show empty-day state</label>
-            </p>
-            <input class="view-switch sr-only" type="checkbox" id="empty-demo" />
-
-            <div class="view-filled">
-                <ul class="task-list">
+        <div class="view-filled">
+            <section class="section rise rise-delay-1" aria-labelledby="list-title">
+                <div class="section__head">
+                    <h2 class="section__title" id="list-title">Today’s tasks</h2>
+                    <p class="section__count">3 pending</p>
+                </div>
+                <ul class="task-list task-list--tiles">
                     <li class="task">
                         <input class="task__check" type="checkbox" aria-label="Mark water plants as done" />
                         <div class="task__body">
@@ -179,12 +104,14 @@ $asset = $basePath . '/public/assets';
                         </div>
                     </li>
                 </ul>
+            </section>
 
-                <div class="section__head" style="margin-top: 1.75rem">
-                    <h3 class="section__title" style="font-size: 1.1rem">Completed</h3>
+            <section class="section rise rise-delay-2" aria-labelledby="done-title">
+                <div class="section__head">
+                    <h2 class="section__title section__title--sub" id="done-title">Completed</h2>
                     <p class="section__count">1 today</p>
                 </div>
-                <ul class="task-list">
+                <ul class="task-list task-list--tiles">
                     <li class="task task--done">
                         <input
                             class="task__check"
@@ -203,32 +130,136 @@ $asset = $basePath . '/public/assets';
                         </div>
                     </li>
                 </ul>
-            </div>
+            </section>
+        </div>
 
-            <div class="view-empty">
-                <div class="empty">
-                    <div class="empty__glyph" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M5 7.5h14M5 12h9M5 16.5h11"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="square" />
-                        </svg>
-                    </div>
-                    <h3>Nothing on the list yet</h3>
-                    <p>
-                        Add your first what-to-do above. Set a time and a reminder channel when you need a nudge.
-                    </p>
+        <div class="view-empty">
+            <div class="empty">
+                <div class="empty__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M5 7.5h14M5 12h9M5 16.5h11"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="square" />
+                    </svg>
                 </div>
+                <h3>Nothing on the list yet</h3>
+                <p>Use the plus button to add a what-to-do. Set a time and a reminder channel when you need a nudge.</p>
             </div>
-        </section>
+        </div>
+
+        <p class="demo-toggle">
+            <label for="empty-demo">Show empty-day state</label>
+        </p>
 
         <footer class="footer-note">
             Dayfold UI prototype for PHP Learning — HTML &amp; CSS only. Forms navigate for demo; no backend yet.
         </footer>
     </div>
-    <script type="module" src="/src/main.js"></script>
+
+    <button class="fab" type="button" id="add-task" aria-haspopup="dialog" aria-controls="task-dialog">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        <span class="sr-only">Add a what-to-do</span>
+    </button>
+
+    <dialog class="composer-dialog" id="task-dialog" aria-labelledby="compose-title">
+        <div class="composer">
+            <div class="composer__head">
+                <div>
+                    <h2 class="composer__title" id="compose-title">Add a what-to-do</h2>
+                    <p class="panel__sub">Set a time, pick priority, and choose how you want to be nudged.</p>
+                </div>
+                <button class="btn btn--ghost" type="button" id="close-task">Close</button>
+            </div>
+
+            <form class="form" action="/home.html" method="get">
+                <div class="field">
+                    <label for="task-title">Task</label>
+                    <input
+                        id="task-title"
+                        name="title"
+                        type="text"
+                        placeholder="Call the clinic about Thursday’s appointment"
+                        required />
+                </div>
+                <div class="field">
+                    <label for="task-note">Note (optional)</label>
+                    <textarea
+                        id="task-note"
+                        name="note"
+                        rows="2"
+                        placeholder="Ask about fasting instructions before the bloodwork."></textarea>
+                </div>
+                <div class="form__row">
+                    <div class="field">
+                        <label for="alarm-time">Alarm / time</label>
+                        <input id="alarm-time" name="alarm" type="time" value="14:30" required />
+                    </div>
+                    <div class="field">
+                        <span id="priority-label">Priority</span>
+                        <div class="priority" role="radiogroup" aria-labelledby="priority-label">
+                            <label>
+                                <input type="radio" name="priority" value="high" />
+                                <span data-level="high">High</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="priority" value="medium" checked />
+                                <span data-level="medium">Medium</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="priority" value="low" />
+                                <span data-level="low">Low</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <span id="channels-label">Reminder channels</span>
+                    <div class="channels" role="group" aria-labelledby="channels-label">
+                        <label class="channel channel--email">
+                            <input type="checkbox" name="channel" value="email" checked />
+                            <span>Email</span>
+                        </label>
+                        <label class="channel channel--whatsapp">
+                            <input type="checkbox" name="channel" value="whatsapp" />
+                            <span>WhatsApp</span>
+                        </label>
+                        <label class="channel channel--sms">
+                            <input type="checkbox" name="channel" value="sms" />
+                            <span>Message (SMS)</span>
+                        </label>
+                    </div>
+                    <p class="field__hint">Choose one or more. Channels use the contact details on your account.</p>
+                </div>
+                <div class="form__actions">
+                    <button class="btn btn--primary" type="submit">Save to today</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script>
+        const taskDialog = document.getElementById('task-dialog');
+        const addTask = document.getElementById('add-task');
+        const closeTask = document.getElementById('close-task');
+        const taskTitle = document.getElementById('task-title');
+
+        addTask.addEventListener('click', () => {
+            taskDialog.showModal();
+            taskTitle.focus();
+        });
+
+        closeTask.addEventListener('click', () => taskDialog.close());
+
+        taskDialog.addEventListener('click', (event) => {
+            if (event.target === taskDialog) {
+                taskDialog.close();
+            }
+        });
+    </script>
 </body>
 
 </html>
