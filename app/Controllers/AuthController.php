@@ -34,67 +34,101 @@ final class AuthController
     public function handleLogin(): void
     {
         $base = rtrim($this->config['base_path'], '/');
+        $wantsJson  = $this->wantsJson();
 
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST')  {
+            $this->fail($wantsJson, 405, 'Method Not Allowed.', $base);
+        }
+
+        $len = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+        if ($len > 8192) {
+            $this->fail($wantsJson, 413, 'Request Entity Too Large.', $base);
+        }
+
+        $contentType = strtolower((string) ($_SERVER['CONTENT_TYPE'] ?? ''));
+        if ($contentType !== ''
+            && !str_contains($contentType, 'application/x-www-form-urlencoded')
+            && !str_contains($contentType, 'multipart/form-data')) {
+            $this->fail($wantsJson, 415, 'Unsupported media type.', $base);
+        }
+
+        $token = $_POST['_token'] ?? null;
         // 1) CSRF - reject forged cross-site posts
-        if (!Csrf::validate($_POST['_token']) ?? null) {
-            http_response_code(419);
-            Session::put('flash_error', 'Invalid CSRF token. Please try again.');
-            header('Location: ' . $base . '/login', true, 302);
-            exit;
+        if (is_array($token) || !Csrf::validate(is_string($token) ? $token : null)) {
+            $this->fail($wantsJson, 419, 'Invalid session token. Please try again.', $base);
         }
 
         // Sanitize whole POST bag (or just the fields you need)
         $input = Input::fromRequest('post');
+        $email = is_string($input['email'] ?? null) ? strtolower(trim($input['email'])) : '';
 
         $email = trim((string) ($input['email'] ?? ''));
         // Passwords: do NOT strip/normalize heavily — validate length only.
         // Prefer reading password from raw POST, then password_verify.
         // Never log passwords. Never htmlspecialchars passwords into HTML.
-        $password = trim((string) ($_POST['password'] ?? ''));
+        $password = (string) $_POST['password'];
 
-        // 2) Basic validation (expand later)
-        if ($email === '' || $password === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::put('flash_error', 'Enter a valid email and password.');
-            Session::put('old_email', $email);
-            header('Location: ' . $base . '/login', true, 302);
-            exit;
+        if ($email === '' || $password === '' || mb_strlen($password) > 128
+            || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->fail($wantsJson, 422, 'Those credentials do not match our records.', $base);
         }
 
-        /*
-         * DEMO ONLY (local) — replace ASAP with:
-         *   $user = User::findByEmail($email); // prepared statement
-         *   $ok = $user && password_verify($password, $user->password_hash);
-         * Never store or log plain passwords.
-         */
-        $ok = (strtolower($email) === 'demo@dayfold.test' && $password === 'ChangeMe123!');
+        // DEMO ONLY — replace with User::findByEmail + password_verify
+        $ok = ($email === 'demo@dayfold.test' && $password === 'ChangeMe123!');
 
         if (!$ok) {
-            // Generic message — do not reveal whether email exists (user enumeration)
-            Session::put('flash_error', 'Those credentials do not match our records.');
-            Session::put('old_email', $email);
-            header('Location: ' . $base . '/login', true, 302);
-            exit;
+            $this->fail($wantsJson, 401, 'Those credentials do not match our records.', $base);
         }
 
         Session::regenerate();
         Session::put('user_id', 1);
         Session::put('user_email', $email);
 
+        if ($wantsJson) {
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo json_encode(['ok' => true, 'redirect' => $base . '/'], JSON_THROW_ON_ERROR);
+            exit;
+        }
+
         header('Location: ' . $base . '/', true, 302);
         exit;
+    }
+
+    private function wantsJson(): bool
+    {
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $xhr = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+        return str_contains($accept, 'application/json') || strcasecmp($xhr, 'XMLHttpRequest') === 0;
     }
 
     public function logout(): void
     {
         $base = rtrim($this->config['base_path'], '/');
 
-        if (!Csrf::validate($_POST['_token'] ?? null)) {
+        $token = $_POST['_token'] ?? null;
+        if (is_array($token) || !Csrf::validate(is_string($token) ? $token : null)) {
             http_response_code(419);
             header('Location: ' . $base . '/', true, 302);
             exit;
         }
 
         Session::destroy();
+        header('Location: ' . $base . '/login', true, 302);
+        exit;
+    }
+
+    private function fail(bool $wantsJson, int $status, string $message, string $base): never
+    {
+        if ($wantsJson) {
+            http_response_code($status);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo json_encode(['ok' => false, 'message' => $message], JSON_THROW_ON_ERROR);
+            exit;
+        }
+
+        Session::put('flash_error', $message);
         header('Location: ' . $base . '/login', true, 302);
         exit;
     }

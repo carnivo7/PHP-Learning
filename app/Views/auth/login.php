@@ -1,4 +1,5 @@
 <?php
+
 /** @var string $basePath */
 /** @var string|null $error */
 /** @var string $oldEmail */
@@ -13,7 +14,7 @@ $asset = $basePath . '/public/assets';
 
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="<?= View::e($asset) ?>/../favicon.svg" />
     <link rel="stylesheet" href="<?= View::e($asset) ?>/css/app.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign in — Dayfold</title>
@@ -25,7 +26,7 @@ $asset = $basePath . '/public/assets';
     <main class="shell auth login-container">
         <div class="auth__stage">
             <section class="auth__hero rise" aria-labelledby="brand-heading">
-                <a class="brand" href="/" id="brand-heading">
+                <a class="brand" href="<?= View::e($basePath) ?>/login" id="brand-heading">
                     <span class="brand__mark" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M5 8h14v2H5V8Zm0 5h10v2H5v-2Z" fill="#e8f3ef" />
@@ -46,21 +47,19 @@ $asset = $basePath . '/public/assets';
                 <h1 class="panel__title" id="login-title">Sign in</h1>
                 <p class="panel__sub">Pick up today’s list where you left it.</p>
 
-                <p class="field__hint" role="alert" style="color:#b42318;margin-bottom:1rem;">
-                <?php if (!empty($error)): ?>
-                    <?= View::e($error) ?>
-                    <?php endif; ?>
+                <p id="login-error" class="field__hint" role="alert" style="color:#b42318;margin-bottom:1rem;" <?= empty($error) ? 'hidden' : '' ?>>
+                    <?= View::e($error ?? '') ?>
                 </p>
 
-                <form class="form" action="<?= View::e($basePath) ?>/login" method="POST" autocomplete="on" id="login-form">
+                <form class="form" action="<?= View::e($basePath) ?>/login" method="post" autocomplete="on" id="login-form">
                     <?= $csrfField ?>
                     <div class="field">
                         <label for="email">Email</label>
-                        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+                        <input id="email" name="email" type="email" maxlength="254" autocomplete="username" placeholder="you@example.com" value="<?= View::e($oldEmail) ?>" required />
                     </div>
                     <div class="field">
                         <label for="password">Password</label>
-                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+                        <input id="password" name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="••••••••" required />
                     </div>
                     <div class="form__actions">
                         <button class="btn btn--primary btn--block" type="submit">Continue to today</button>
@@ -69,12 +68,12 @@ $asset = $basePath . '/public/assets';
 
                 <p class="form__footer">
                     New here?
-                    <a href="/register.html">Create a Dayfold account</a>
+                    <a href="<?= View::e($basePath) ?>/login">Create a Dayfold account</a>
                 </p>
             </section>
         </div>
     </main>
-    <script type="module" src="<?= View::e($asset) ?>/js/script.js"></script>
+    <script src="<?= View::e($asset) ?>/js/script.js" defer></script>
 </body>
 
 </html>
