@@ -22,7 +22,7 @@ $asset = $basePath . '/public/assets';
 </head>
 
 <body>
-    <main class="shell auth">
+    <main class="shell auth login-container">
         <div class="auth__stage">
             <section class="auth__hero rise" aria-labelledby="brand-heading">
                 <a class="brand" href="/" id="brand-heading">
@@ -46,13 +46,13 @@ $asset = $basePath . '/public/assets';
                 <h1 class="panel__title" id="login-title">Sign in</h1>
                 <p class="panel__sub">Pick up today’s list where you left it.</p>
 
+                <p class="field__hint" role="alert" style="color:#b42318;margin-bottom:1rem;">
                 <?php if (!empty($error)): ?>
-                    <p class="field__hint" role="alert" style="color:#b42318;margin-bottom:1rem;">
                     <?= View::e($error) ?>
-                    </p>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </p>
 
-                <form class="form" action="<?= View::e($basePath) ?>/login" method="POST" autocomplete="on">
+                <form class="form" action="<?= View::e($basePath) ?>/login" method="POST" autocomplete="on" id="login-form">
                     <?= $csrfField ?>
                     <div class="field">
                         <label for="email">Email</label>
@@ -74,7 +74,7 @@ $asset = $basePath . '/public/assets';
             </section>
         </div>
     </main>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="<?= View::e($asset) ?>/js/script.js"></script>
 </body>
 
 </html>

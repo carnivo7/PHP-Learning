@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Support\Csrf;
 use App\Support\Session;
 use App\Support\View;
+use App\Support\Input;
 
 /**
  * Login / logout.
@@ -42,7 +43,13 @@ final class AuthController
             exit;
         }
 
-        $email = trim((string) ($_POST['email'] ?? ''));
+        // Sanitize whole POST bag (or just the fields you need)
+        $input = Input::fromRequest('post');
+
+        $email = trim((string) ($input['email'] ?? ''));
+        // Passwords: do NOT strip/normalize heavily — validate length only.
+        // Prefer reading password from raw POST, then password_verify.
+        // Never log passwords. Never htmlspecialchars passwords into HTML.
         $password = trim((string) ($_POST['password'] ?? ''));
 
         // 2) Basic validation (expand later)

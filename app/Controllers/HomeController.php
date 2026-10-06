@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Support\View;
+use App\Support\Session;
 
 /**
  * Protected home ("today"). Auth middleware already ran before this.
