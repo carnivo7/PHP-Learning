@@ -21,6 +21,9 @@ final class AuthController
 
     public function showLogin(): void
     {
+        // New token on each full page render (refresh / first visit)
+        Csrf::rotate();
+
         View::render('auth.login', [
             'basePath' => rtrim($this->config['base_path'], '/'),
             'error' => Session::get('flash_error'),
@@ -55,6 +58,9 @@ final class AuthController
         $token = $_POST['_token'] ?? null;
         // 1) CSRF - reject forged cross-site posts
         if (is_array($token) || !Csrf::validate(is_string($token) ? $token : null)) {
+            // Invalid CSRF: still rotate so a stolen old token is useless,
+            // and hand the client a usable fresh token for the next try.
+            Csrf::rotate();
             $this->fail($wantsJson, 419, 'Invalid session token. Please try again.', $base);
         }
 
@@ -62,32 +68,46 @@ final class AuthController
         $input = Input::fromRequest('post');
         $email = is_string($input['email'] ?? null) ? strtolower(trim($input['email'])) : '';
 
-        $email = trim((string) ($input['email'] ?? ''));
         // Passwords: do NOT strip/normalize heavily — validate length only.
         // Prefer reading password from raw POST, then password_verify.
         // Never log passwords. Never htmlspecialchars passwords into HTML.
-        $password = (string) $_POST['password'];
+        $passwordRaw = $_POST['password'] ?? '';
+        if (is_array($passwordRaw)) {
+            $this->fail($wantsJson, 400, 'Invalid request.', $base);
+        }
+
+        $password = (string) $passwordRaw; // never trim passwords
 
         if ($email === '' || $password === '' || mb_strlen($password) > 128
             || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->fail($wantsJson, 422, 'Those credentials do not match our records.', $base);
         }
 
-        // DEMO ONLY — replace with User::findByEmail + password_verify
+        // DEMO ONLY — replace with PDO + password_verify
         $ok = ($email === 'demo@dayfold.test' && $password === 'ChangeMe123!');
 
         if (!$ok) {
+            // Token already consumed above; fail() will expose the new Csrf::token()
             $this->fail($wantsJson, 401, 'Those credentials do not match our records.', $base);
         }
 
+        // Full session id rotation after privilege change
         Session::regenerate();
+        // Optional: mint CSRF again after regenerate for any next POST on home
+        Csrf::rotate();
+
         Session::put('user_id', 1);
         Session::put('user_email', $email);
 
         if ($wantsJson) {
             header('Content-Type: application/json; charset=utf-8');
             header('Cache-Control: no-store');
-            echo json_encode(['ok' => true, 'redirect' => $base . '/'], JSON_THROW_ON_ERROR);
+            echo json_encode([
+                'ok' => true,
+                'redirect' => $base . '/',
+                // not required after redirect, but harmless
+                'csrf' => Csrf::token(),
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 
@@ -124,7 +144,12 @@ final class AuthController
             http_response_code($status);
             header('Content-Type: application/json; charset=utf-8');
             header('Cache-Control: no-store');
-            echo json_encode(['ok' => false, 'message' => $message], JSON_THROW_ON_ERROR);
+            // Always send a fresh CSRF so the next AJAX attempt works
+            echo json_encode([
+                'ok' => false,
+                'message' => $message,
+                'csrf' => Csrf::token(),
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 

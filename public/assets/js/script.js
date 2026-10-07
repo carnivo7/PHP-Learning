@@ -103,6 +103,7 @@ class LoginManager {
             });
 
             const data = await this.parseJsonSafe(response);
+            this.applyCsrfFormResponse(data);
 
             if (response.ok && data && data.ok === true && typeof data.redirect === 'string') {
                 if (!data.redirect.startsWith('/')) {
@@ -135,6 +136,22 @@ class LoginManager {
             return JSON.parse(text);
         } catch {
             return null;
+        }
+    }
+
+    /**
+     * Server rotates CSRF after each consumed POST.
+     * Without this, the second login click would always get 419.
+     */
+    applyCsrfFromResponse(data) {
+        if (!data || typeof data.csrf !== 'string' || data.csrf.length < 32) {
+            return;
+        }
+
+        const input = this.form?.querySelector('input[name="_token"]');
+        
+        if (input) {
+            input.value = data.csrf;
         }
     }
 }
