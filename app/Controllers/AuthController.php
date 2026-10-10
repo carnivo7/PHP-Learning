@@ -157,4 +157,23 @@ final class AuthController
         header('Location: ' . $base . '/login', true, 302);
         exit;
     }
+
+    public function showRegister(): void
+    {
+        View::render('auth.register', [
+            'basePath' => rtrim($this->config['base_path'], '/'),
+            'error' => Session::get('flash_error'),
+            'oldFirstName' => Session::get('old_first_name', ''),
+            'oldLastName' => Session::get('old_last_name', ''),
+            'oldEmail' => Session::get('old_email', ''),
+            'oldPhone' => Session::get('old_phone', ''),
+            'csrfField' => Csrf::field(),
+        ]);
+
+        Session::forget('flash_error');
+        Session::forget('old_first_name');
+        Session::forget('old_last_name');
+        Session::forget('old_email');
+        Session::forget('old_phone');
+    }
 }

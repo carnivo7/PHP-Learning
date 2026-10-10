@@ -14,7 +14,7 @@ $asset = $basePath . '/public/assets';
 
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="<?= View::e($asset) ?>/../favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="<?= View::e($asset) ?>/images/favicon.svg" />
     <link rel="stylesheet" href="<?= View::e($asset) ?>/css/app.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign in — Dayfold</title>
@@ -68,7 +68,7 @@ $asset = $basePath . '/public/assets';
 
                 <p class="form__footer">
                     New here?
-                    <a href="<?= View::e($basePath) ?>/login">Create a Dayfold account</a>
+                    <a href="<?= View::e($basePath) ?>/register">Create a Dayfold account</a>
                 </p>
             </section>
         </div>

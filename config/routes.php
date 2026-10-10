@@ -39,5 +39,12 @@ return [
         'path' => '/logout',
         'handler' => [\App\Controllers\AuthController::class, 'logout'],
         'middleware' => ['auth'],
+    ],
+
+    [
+        'method' => 'GET',
+        'path' => '/register',
+        'handler' => [\App\Controllers\AuthController::class, 'showRegister'],
+        'middleware' => ['guest'],
     ]
 ];
