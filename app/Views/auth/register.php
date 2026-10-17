@@ -26,7 +26,7 @@ $asset = $basePath . '/public/assets';
 </head>
 
 <body>
-  <main class="shell auth">
+  <main class="shell auth register-container">
     <div class="auth__stage">
       <section class="auth__hero rise" aria-labelledby="brand-heading">
         <a class="brand" href="<?= View::e($basePath); ?>" id="brand-heading">
@@ -55,6 +55,7 @@ $asset = $basePath . '/public/assets';
         </p>
 
         <form class="form" action="<?=  View::e($basePath) ?>/register" method="POST" autocomplete="on" id="register-form">
+          <?= $csrfField; ?>
           <div class="form__row">
             <div class="field">
               <label for="first-name">First name</label>
@@ -90,7 +91,7 @@ $asset = $basePath . '/public/assets';
       </section>
     </div>
   </main>
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="<?= View::e($asset) ?>/js/script.js"></script>
 </body>
 
 </html>
